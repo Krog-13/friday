@@ -1,0 +1,12 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# Pycharm project files
+.idea/
+venv
+
+
+bot_*.py
+test.png
+.env
