@@ -1,4 +1,5 @@
 from email.mime.text import MIMEText
+from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 import smtplib
 from aiogram.filters.callback_data import CallbackData
@@ -50,7 +51,8 @@ async def send_code_verification(email, code):
         html = f"""\
             <html>
               <body>
-                <p>Код верификации - {code}</p>                       
+                <h4>Вас приветствует SMART BOT 'КазМунайГаз'</h4>
+                <em>Код верификации - <b>{code}</b></em>                       
               </body>
             </html>
             """
@@ -65,7 +67,7 @@ async def send_code_verification(email, code):
         logger.error(f"Ошибка отправки почты {e}")
 
 
-async def send_problem(data, person):
+async def send_problem(data, person, photo=None):
     """
     Account verification
     """
@@ -79,20 +81,22 @@ async def send_problem(data, person):
         msg['From'] = sender_email
         msg['To'] = email
         msg['Subject'] = 'Верификация аккаунта сотрутника KMG'
-
         html = f"""\
             <html>
             <body>
-              <h4>Категория - {data["name"]}</h4>
-              <h5>Подкатегория - {data["subcategory"]}</h5>
-                <p>Описание проблемы - {data["problem"]}</p>  
-                <h5>Автор обращения {person[5]}</h5>                     
-                <h5>Рукаводитель <em>{person[6]}</em></h5>           
-                <h5>Телефон <em>{person[1]}</em></h5>                     
+              <h4>Категория</h4> - <em>{data["name"]}</em>
+              <h4>Подкатегория</h4> - <em>{data["subcategory"]}</em>
+                <h5>Описание проблемы</h5> <p>{data["problem"]}</p>
+                <br>  
+                <h5>Автор обращения: {person[5]}</h5>                     
+                <h5>Рукаводитель:  <em>{person[6]}</em></h5>           
+                <h5>Телефон: <em>{person[3]}</em></h5>                     
             </body>
             </html>
             """
         msg.attach(MIMEText(html, 'html'))
+        if photo:
+            msg.attach(MIMEImage(photo.read(), name='photo.jpg'))
         with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as smtp:
             logger.warning(f"Problem sended {email}")
             smtp.starttls()

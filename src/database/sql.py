@@ -29,7 +29,7 @@ create table orders(
 
 """
 
-user_exist = "SELECT id FROM users WHERE personal_uid=%s"
+user_exist = "SELECT full_name, email, phone_number, manager FROM users WHERE personal_uid=%s"
 get_user = "SELECT * FROM users WHERE personal_uid=%s"
 user_add = "INSERT INTO users (personal_uid, status, full_name, email, phone_number, manager, user_language) VALUES (%s, %s, %s, %s, %s, %s, %s)"
 

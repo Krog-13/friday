@@ -9,7 +9,9 @@ from aiogram import types
 _DEFAULT_COMMAND = [types.bot_command.BotCommand(command="start", description="Начало"),
                     types.bot_command.BotCommand(command="register", description="Регистрация"),
                     types.bot_command.BotCommand(command="service", description="Услуги"),
-                    types.bot_command.BotCommand(command="help", description="Помошник")]
+                    types.bot_command.BotCommand(command="help", description="Помошник"),
+                    types.bot_command.BotCommand(command="cancel", description="Отмена")
+                    ]
 
 
 async def main() -> None:

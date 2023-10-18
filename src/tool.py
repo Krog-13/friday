@@ -2,8 +2,8 @@ async def exist_user(user_uid, db):
     """
     Check exist user
     """
-    personal_uid = db.user_exists(user_uid)
-    return True if personal_uid else False
+    personal_user = db.user_exists(user_uid)
+    return personal_user if personal_user else False
 
 
 async def add_user(data, user_uid, db):

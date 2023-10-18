@@ -1,6 +1,6 @@
 import tool
 from aiogram.types import Message, CallbackQuery
-from aiogram.filters import CommandStart, Command
+from aiogram.filters import Command
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
@@ -28,11 +28,22 @@ class UserStates(StatesGroup):
 
 @router.message(Command("register"))
 async def cmd_dice_in_group(message: Message, db):
-    if not await tool.exist_user(str(message.from_user.id), db):
+    user = await tool.exist_user(str(message.from_user.id), db)
+    if not user:
         await message.answer(f"Здравствуйте Вас привествует смарт-бот 'КазМунайГаз'"
                              f"для регистрации нажмите соответствующую кнопку\n", reply_markup=get_reg_bt())
         return True
-    await message.answer(f"Здравствуйте, для выбора услуги выбирите {message.from_user.id}")
+    await message.answer(f"Здравствуйте <u>{user[0]}</u>, \nВы уже зарегистрированный пользователь!\n"
+                         f"Вашы данные:\n"
+                         f"Почта - {user[1]}\n"
+                         f"Номер телефона - {user[2]}\n"
+                         f"Рукаводитель - {user[3]}")
+
+
+@router.message(Command("cancel"))
+async def canceled_command(message: Message, state: FSMContext):
+    await state.clear()
+    await message.answer(f"Сброс")
 
 
 @router.callback_query(F.data == "reg")
@@ -43,9 +54,21 @@ async def checkin_confirm(callback: CallbackQuery, state: FSMContext, bot) -> No
         message_id=callback.message.message_id,
         reply_markup=None)
 
-    await callback.answer("Для регистрации следуйте указаниям ниже", show_alert=True)
+    await callback.answer("Для регистрации следуйте указать:\n\nФИО\nКорпаративную почту\nНомер телефона\nНепосредственного рукаводителя\nЯзык", show_alert=True)
     await callback.message.answer("Введите ФИО:", reply_markup=None)
     await state.set_state(UserStates.fullname)
+
+
+@router.callback_query(F.data == "cancel")
+async def canceled(callback: CallbackQuery, bot) -> None:
+    # cancel
+    await bot.edit_message_reply_markup(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        reply_markup=None)
+
+    await callback.answer()
+    await callback.message.answer("Регистрация отменена!")
 
 
 @router.message(UserStates.fullname)

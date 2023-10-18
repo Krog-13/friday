@@ -16,16 +16,16 @@ def get_category_bt(db):
     return builder.as_markup()
 
 
-def get_servie_bt(db) -> ReplyKeyboardMarkup:
-    """
-    Category button
-    """
-    category = db.category_parent()
-    kb = [[KeyboardButton(text=i[1], callback_data="test")] for i in category]
-    # one_time_keyboard после нажатия скрывает кнопки
-    keyboard = ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True,
-                                         input_field_placeholder="select what do you need", one_time_keyboard=True)
-    return keyboard
+# def get_servie_bt(db) -> ReplyKeyboardMarkup:
+#     """
+#     Category button
+#     """
+#     category = db.category_parent()
+#     kb = [[KeyboardButton(text=i[1], callback_data="test")] for i in category]
+#     # one_time_keyboard после нажатия скрывает кнопки
+#     keyboard = ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True,
+#                                          input_field_placeholder="select what do you need", one_time_keyboard=True)
+#     return keyboard
 
 
 def get_inet_bt(sub_cat, name) -> InlineKeyboardMarkup:
@@ -35,4 +35,14 @@ def get_inet_bt(sub_cat, name) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
     for cat in sub_cat:
         kb.button(text=cat[1], callback_data=f"fix_{cat[1]}_{cat[0]}")
+    return kb.as_markup()
+
+
+def get_photo_bt() -> InlineKeyboardMarkup:
+    """
+    Photo button
+    """
+    kb = InlineKeyboardBuilder()
+    # kb.button(text="добавить фото", callback_data="photo_add")
+    kb.button(text="без фото", callback_data="photo_no")
     return kb.as_markup()
