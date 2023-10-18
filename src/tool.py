@@ -1,3 +1,5 @@
+from datetime import datetime
+
 async def exist_user(user_uid, db):
     """
     Check exist user
@@ -19,7 +21,7 @@ async def add_user(data, user_uid, db):
 
 async def cat_child(parent_id, db):
     """
-    Check exist user
+    Get children category
     """
     cat_child = db.category_children(parent_id)
     return cat_child
@@ -27,7 +29,18 @@ async def cat_child(parent_id, db):
 
 async def get_user(uuid, db):
     """
-    Check exist user
+    Get a user
     """
     user = db.get_user(uuid)
     return user
+
+
+async def set_order(data: dict, user_id, db):
+    """
+    Add orders
+    """
+    values = []
+    # prepare param
+    for item in [user_id, data["problem"], "В обработке", datetime.now(), data["category_id"]]:
+        values.append(item)
+    db.add_orders(tuple(values))

@@ -1,4 +1,5 @@
 import tool
+from config import logger
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
 from aiogram import Router, F
@@ -30,6 +31,7 @@ class UserStates(StatesGroup):
 async def cmd_dice_in_group(message: Message, db):
     user = await tool.exist_user(str(message.from_user.id), db)
     if not user:
+        logger.warning("New user to want registration")
         await message.answer(f"Здравствуйте Вас привествует смарт-бот 'КазМунайГаз'"
                              f"для регистрации нажмите соответствующую кнопку\n", reply_markup=get_reg_bt())
         return True
@@ -94,7 +96,7 @@ async def process_email(message: Message, state: FSMContext) -> None:
         return
     await state.update_data(email=message.text)
     await state.set_state(UserStates.phone)
-    await message.answer("Введите Ваш номер телефона:")
+    await message.answer("Введите Ваш номер телефона (должен содержать только цифры):")
 
 
 @router.message(UserStates.phone)
@@ -160,7 +162,7 @@ async def verification_user(callback: CallbackQuery, state: FSMContext, bot, db)
 
 
 @router.message(UserStates.code)
-async def verification_code_user(message: Message, state: FSMContext, db, bot) -> None:
+async def verification_code_user(message: Message, state: FSMContext, db) -> None:
     """
     Register user
     """
@@ -168,8 +170,10 @@ async def verification_code_user(message: Message, state: FSMContext, db, bot) -
     if data['code'] == message.text:
         await tool.add_user(data=data, user_uid=message.from_user.id, db=db)
         await state.clear()
+        logger.warning(f"User by email {data['email']} was registered")
         await message.answer("Поздравлеям вы зарегестрировались!")
     else:
+        logger.warning(f"User by email {data['email']} enter incorrect verify code")
         await message.answer("Код верификации неверный, убедитесь в корректности кода и введите еще раз",
                              reply_markup=get_code_kb())
 

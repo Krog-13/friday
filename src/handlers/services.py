@@ -1,4 +1,5 @@
 import tool
+from config import logger
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
 from aiogram import Router, F
@@ -95,8 +96,10 @@ async def category_sub(callback: CallbackQuery, state: FSMContext, bot, db) -> N
     uuid = callback.from_user.id
     person = await tool.get_user(str(uuid), db)
     data = await state.get_data()
+    await tool.set_order(data, person[0], db)
     await state.clear()
     await send_problem(data, person)
+    logger.info(f"User by email {person[2]} created order without photo")
     await callback.message.answer(text="Ваше обращение оптравленно без фото. Спасибо Ваша заявка в обработке")
 
 
@@ -113,5 +116,9 @@ async def order_photo(message: Message, state: FSMContext, db, bot) -> None:
     file = await bot.get_file(message.photo[-1].file_id)
     file_path = file.file_path
     photo_bytes = await bot.download_file(file_path)
-    await send_problem(data, person, photo_bytes)
-    await message.answer(text="Ваше обращение отправленно с фото. Спасибо Ваша заявка в обработке")
+    if data:
+        await tool.set_order(data, person[0], db)
+        await send_problem(data, person, photo_bytes)
+        await message.answer(text="Ваше обращение отправленно с фото. Спасибо Ваша заявка в обработке")
+        logger.info(f"User by email {person[2]} created order with photo")
+

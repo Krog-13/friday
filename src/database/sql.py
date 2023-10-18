@@ -32,6 +32,7 @@ create table orders(
 user_exist = "SELECT full_name, email, phone_number, manager FROM users WHERE personal_uid=%s"
 get_user = "SELECT * FROM users WHERE personal_uid=%s"
 user_add = "INSERT INTO users (personal_uid, status, full_name, email, phone_number, manager, user_language) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+order_add = "INSERT INTO orders (user_id, order_msg, order_status, order_date, service_id) VALUES (%s, %s, %s, %s, %s)"
 
 category_parent = "SELECT * FROM service WHERE parent_id is null"
 

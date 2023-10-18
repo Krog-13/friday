@@ -100,6 +100,14 @@ class Database:
             curs.close()
         return True
 
+    def add_orders(self, values):
+        """Run SQL query to check exists user"""
+        with self.conn.cursor() as curs:
+            curs.execute(sql.order_add, values)
+            self.conn.commit()
+            curs.close()
+        return True
+
     def category_parent(self):
         """Run SQL query to check exists user"""
         with self.conn.cursor() as curs:
