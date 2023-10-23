@@ -10,3 +10,4 @@ venv
 bot_*.py
 test.png
 .env
+test.py

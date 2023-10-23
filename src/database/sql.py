@@ -35,5 +35,7 @@ user_add = "INSERT INTO users (personal_uid, status, full_name, email, phone_num
 order_add = "INSERT INTO orders (user_id, order_msg, order_status, order_date, service_id) VALUES (%s, %s, %s, %s, %s)"
 
 category_parent = "SELECT * FROM service WHERE parent_id is null"
-
 category_child = "SELECT * FROM service WHERE parent_id=%s"
+
+
+get_orders = "select order_date, order_status, order_msg, short_name from orders left join service on orders.service_id = service.id where user_id in (select id from users where personal_uid=%s)"

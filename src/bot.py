@@ -9,6 +9,7 @@ from aiogram import types
 _DEFAULT_COMMAND = [types.bot_command.BotCommand(command="start", description="Начало"),
                     types.bot_command.BotCommand(command="register", description="Регистрация"),
                     types.bot_command.BotCommand(command="service", description="Услуги"),
+                    types.bot_command.BotCommand(command="orders", description="Ваши заявки"),
                     types.bot_command.BotCommand(command="help", description="Помошник"),
                     types.bot_command.BotCommand(command="cancel", description="Отмена")
                     ]
@@ -21,6 +22,7 @@ async def main() -> None:
     config.logger.info("* Main start *")
 
     bot = Bot(config.API_KEY, parse_mode=ParseMode.HTML)
+    await bot.delete_webhook()
     await bot.set_my_commands(_DEFAULT_COMMAND)
     dp.include_router(registration.router)
     dp.include_router(base.router)
