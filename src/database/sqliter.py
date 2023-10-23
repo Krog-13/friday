@@ -108,6 +108,14 @@ class Database:
             curs.close()
         return True
 
+    def get_orders(self, uuid):
+        """Run SQL query to get all orders"""
+        with self.conn.cursor() as curs:
+            curs.execute(sql.get_orders, (uuid,))
+            record = curs.fetchall()
+            curs.close()
+        return record
+
     def category_parent(self):
         """Run SQL query to check exists user"""
         with self.conn.cursor() as curs:

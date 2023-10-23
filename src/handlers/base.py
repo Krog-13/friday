@@ -2,7 +2,7 @@ from aiogram.types import Message
 from aiogram.filters import CommandStart, Command
 from aiogram import Router
 from filters.chat_type import ChatTypeFilter
-import asyncio
+from aiogram.fsm.context import FSMContext
 
 router = Router()
 router.message.filter(ChatTypeFilter(chat_type=["group", "supergroup"]))
@@ -17,3 +17,9 @@ async def cmd_dice_in_group(message: Message):
 @router.message(Command("help"))
 async def helper(message: Message):
         await message.answer(f"Здравствуйте Вас привествует смарт-бот 'КазМунайГаз'\nПри возникновений вопросов по пользованию бота прошу написать на почту - <b>a.nurkin@kmg.kz</b>")
+
+
+@router.message(Command("cancel"))
+async def canceled_command(message: Message, state: FSMContext):
+    await state.clear()
+    await message.answer(f"Сброс")

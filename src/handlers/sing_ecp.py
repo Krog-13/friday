@@ -1,30 +1,40 @@
 import tool
 import base64
+
 from urllib.parse import quote
-from config import logger
+from config import logger, APP_BASE_URL
+from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message
 from aiogram.filters import Command
 from aiogram import Router, F
 from aiohttp.web_request import Request
+from aiogram.fsm.context import FSMContext
 from keyboards.register import get_reg_bt
 from aiohttp.web_response import json_response
 from aiogram import Bot
 router = Router()
 
 
+class FileSate(StatesGroup):
+    """
+    Personal data
+    """
+    document = State()
+
+
 @router.message(Command("file"))
-async def cmd_dice_in_group(message: Message, db):
+async def cmd_dice_in_group(message: Message, state: FSMContext, db):
     if not await tool.exist_user(str(message.from_user.id), db):
         await message.answer(f"Для использования данного <b>меню</b> (<em>Сервис</em>) "
                              f"необходима регистрация\n",
                              reply_markup=get_reg_bt())
         return True
+    await state.set_state(FileSate.document)
     await message.answer(f"Здравствуйте, для подписания ecp отправьте подписываемый документ")
-    await message.answer(text="https://mgovsign.page.link/&apn=kz.mobile.mgov")
 
-
-@router.message(F.document)
-async def order_photo(message: Message, bot) -> None:
+@router.message(FileSate.document)
+# @router.message(F.document)
+async def order_photo(message: Message,state: FSMContext, bot) -> None:
     """
     Document upload
     """
@@ -34,7 +44,8 @@ async def order_photo(message: Message, bot) -> None:
     logger.warning("Open mobile app egov")
     res = f"file_path={file_path}"
     param = quote(res)
-    await message.answer(text=f"https://mgovsign.page.link/?link=https://57b0-92-46-127-106.ngrok.io/mgovSign?{param}&apn=kz.mobile.mgov")
+    await state.clear()
+    await message.answer(text=f"https://mgovsign.page.link/?link={APP_BASE_URL}/mgovSign?{param}&apn=kz.mobile.mgov")
 
 
 async def get_file_sign(request: Request):

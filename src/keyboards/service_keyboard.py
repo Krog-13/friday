@@ -1,12 +1,10 @@
-from aiogram.types import KeyboardButton, InlineKeyboardButton
-from aiogram.utils.keyboard import ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeyboardBuilder
-from aiogram.filters.callback_data import CallbackData
-from typing import Optional
+from aiogram.utils.keyboard import InlineKeyboardMarkup, InlineKeyboardBuilder
 from handlers.handler_tool import CategoryCallbackFactory
 
 
 def get_category_bt(db):
     """
+    Category button
     """
     category = db.category_parent()
     builder = InlineKeyboardBuilder()
@@ -16,21 +14,9 @@ def get_category_bt(db):
     return builder.as_markup()
 
 
-# def get_servie_bt(db) -> ReplyKeyboardMarkup:
-#     """
-#     Category button
-#     """
-#     category = db.category_parent()
-#     kb = [[KeyboardButton(text=i[1], callback_data="test")] for i in category]
-#     # one_time_keyboard после нажатия скрывает кнопки
-#     keyboard = ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True,
-#                                          input_field_placeholder="select what do you need", one_time_keyboard=True)
-#     return keyboard
-
-
 def get_inet_bt(sub_cat, name) -> InlineKeyboardMarkup:
     """
-    Ca
+    Problem button
     """
     kb = InlineKeyboardBuilder()
     for cat in sub_cat:
@@ -46,3 +32,15 @@ def get_photo_bt() -> InlineKeyboardMarkup:
     # kb.button(text="добавить фото", callback_data="photo_add")
     kb.button(text="без фото", callback_data="photo_no")
     return kb.as_markup()
+
+
+# def get_servie_bt(db) -> ReplyKeyboardMarkup:
+#     """
+#     Category button
+#     """
+#     category = db.category_parent()
+#     kb = [[KeyboardButton(text=i[1], callback_data="test")] for i in category]
+#     # one_time_keyboard после нажатия скрывает кнопки
+#     keyboard = ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True,
+#                                          input_field_placeholder="select what do you need", one_time_keyboard=True)
+#     return keyboard

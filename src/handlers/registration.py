@@ -42,12 +42,6 @@ async def register_person(message: Message, db):
                          f"Рукаводитель - {user[3]}")
 
 
-@router.message(Command("cancel"))
-async def canceled_command(message: Message, state: FSMContext):
-    await state.clear()
-    await message.answer(f"Сброс")
-
-
 @router.callback_query(F.data == "reg")
 async def checkin_confirm(callback: CallbackQuery, state: FSMContext, bot) -> None:
     # registration

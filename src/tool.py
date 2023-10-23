@@ -1,5 +1,6 @@
 from datetime import datetime
 
+
 async def exist_user(user_uid, db):
     """
     Check exist user
@@ -44,3 +45,11 @@ async def set_order(data: dict, user_id, db):
     for item in [user_id, data["problem"], "В обработке", datetime.now(), data["category_id"]]:
         values.append(item)
     db.add_orders(tuple(values))
+
+
+async def get_orders(user_id, db):
+    """
+    Get orders
+    """
+    all_orders = db.get_orders(user_id)
+    return all_orders

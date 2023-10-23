@@ -4,7 +4,6 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
-
 from aiogram.fsm.state import State, StatesGroup
 from keyboards.register import get_reg_bt
 from keyboards.service_keyboard import get_inet_bt, get_category_bt, get_photo_bt
@@ -122,3 +121,18 @@ async def order_photo(message: Message, state: FSMContext, db, bot) -> None:
         await message.answer(text="Ваше обращение отправленно с фото. Спасибо Ваша заявка в обработке")
         logger.info(f"User by email {person[2]} created order with photo")
 
+
+@router.message(Command("orders"))
+async def get_all_orders(message: Message, db):
+    """
+    View all records by user
+    """
+    my_orders = await tool.get_orders(str(message.from_user.id), db)
+    if not my_orders:
+        await message.answer(text="У Вас нет активных заявок!")
+        return
+    for item in my_orders:
+        await message.answer(text=f"Дата создания: {item[0].strftime('%Y-%m-%d %H:%M')}\n"
+                                  f"Статус: {item[1]}\n"
+                                  f"Тема: {item[3]}\n"
+                                  f"Текст обращения: {item[2]}\n")

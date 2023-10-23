@@ -6,6 +6,7 @@ from aiohttp.web import run_app
 from aiohttp.web_app import Application
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 import config
+import datetime
 from handlers import registration, base, services, sing_ecp
 from aiogram import types
 from handlers.sing_ecp import get_file_sign
@@ -14,12 +15,13 @@ from aiohttp.web_request import Request
 
 
 # start server https -> ngrok http 8080
-APP_BASE_URL = "https://0292-92-46-127-106.ngrok-free.app"
+APP_BASE_URL = config.APP_BASE_URL
 
 _DEFAULT_COMMAND = [types.bot_command.BotCommand(command="start", description="Начало"),
                     types.bot_command.BotCommand(command="register", description="Регистрация"),
                     types.bot_command.BotCommand(command="service", description="Услуги"),
                     types.bot_command.BotCommand(command="file", description="Файл"),
+                    types.bot_command.BotCommand(command="orders", description="Ваши заявки"),
                     types.bot_command.BotCommand(command="help", description="Помошник"),
                     types.bot_command.BotCommand(command="cancel", description="Отмена")]
 
@@ -28,7 +30,7 @@ _DEFAULT_COMMAND_TYPE = MenuButtonType.COMMANDS
 
 async def on_startup(bot: Bot, base_url: str):
     await bot.set_webhook(f"{base_url}/webhook")
-    await bot.send_message(chat_id="838019137", text="Bot has been started")
+    await bot.send_message(chat_id="838019137", text=f"Bot started at {datetime.datetime.now().strftime('%Y.%m.%d %H:%M')}")
     await bot.set_my_commands(_DEFAULT_COMMAND)
     # await bot.set_chat_menu_button(
     #     menu_button=MenuButtonWebApp(text="Open Menu", web_app=WebAppInfo(url=f"{base_url}/demo")))
@@ -62,7 +64,7 @@ def main() -> None:
         bot=bot,
         db=db
     ).register(app, path="/webhook")
-        
+
     setup_application(app, dp, bot=bot, db=db)
     run_app(app, host="127.0.0.1", port=8080)
 
