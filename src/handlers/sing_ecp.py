@@ -2,16 +2,11 @@ import tool
 import base64
 from urllib.parse import quote
 from config import logger
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message
 from aiogram.filters import Command
 from aiogram import Router, F
-from aiogram.fsm.context import FSMContext
 from aiohttp.web_request import Request
-from aiogram.fsm.state import State, StatesGroup
 from keyboards.register import get_reg_bt
-from keyboards.service_keyboard import get_inet_bt, get_category_bt, get_photo_bt
-from filters.chat_type import ChatTypeFilter
-from handlers.handler_tool import CategoryCallbackFactory, send_problem
 from aiohttp.web_response import json_response
 from aiogram import Bot
 router = Router()
@@ -35,12 +30,11 @@ async def order_photo(message: Message, bot) -> None:
     """
     await bot.download(message.document, destination=f"/tmp/{message.document.file_id}.pdf")
     file = await bot.get_file(message.document.file_id)
-    file_path = file.file_path # need code param https://developer.donnoval.ru/urlencode/
-    document = await bot.download_file(file_path)
+    file_path = file.file_path  # need code param https://developer.donnoval.ru/urlencode/
     logger.warning("Open mobile app egov")
     res = f"file_path={file_path}"
     param = quote(res)
-    await message.answer(text=f"https://mgovsign.page.link/?link=https://ebb8-92-46-127-106.ngrok.io/mgovSign?{param}&apn=kz.mobile.mgov")
+    await message.answer(text=f"https://mgovsign.page.link/?link=https://57b0-92-46-127-106.ngrok.io/mgovSign?{param}&apn=kz.mobile.mgov")
 
 
 async def get_file_sign(request: Request):
@@ -81,4 +75,4 @@ async def get_file_sign(request: Request):
             }
         ]
     }
-    return json_response({"name": "test"})
+    return json_response(response)
