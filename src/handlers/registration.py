@@ -28,7 +28,7 @@ class UserStates(StatesGroup):
 
 
 @router.message(Command("register"))
-async def cmd_dice_in_group(message: Message, db):
+async def register_person(message: Message, db):
     user = await tool.exist_user(str(message.from_user.id), db)
     if not user:
         logger.warning("New user to want registration")
