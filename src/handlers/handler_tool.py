@@ -29,7 +29,7 @@ async def preset_data(data):
         <b>ФИО:</b> {data['fullname']}
         <b>Почта:</b> {data['email']}
         <b>Номер телефона:</b> {data['phone']}
-        <b>Рукаводитель:</b> {data['manager']}
+        <b>Руководитель:</b> {data['manager']}
         <b>Язык интерфейса:</b> {data['user_language']}
     """
     return result
@@ -71,7 +71,7 @@ async def send_problem(data, person, photo=None):
     """
     Account verification
     """
-    email = "a.nurkin@kmg.kz"
+    email = "a.nurkin@kmkl.kmg.kz"
     # email = "r.nazarova@kmg.kz"
     try:
         sender_email = EMAIL_HOST_USER
@@ -87,9 +87,11 @@ async def send_problem(data, person, photo=None):
               <h4>Категория</h4> - <em>{data["name"]}</em>
               <h4>Подкатегория</h4> - <em>{data["subcategory"]}</em>
                 <h5>Описание проблемы</h5> <p>{data["problem"]}</p>
+                <h5>Кабинет <p>{data["cabinet"]}</p></h5>
+                <h5>Номер телефона <p>{data["phone"]}</p></h5>
                 <br>  
                 <h5>Автор обращения: {person[5]}</h5>                     
-                <h5>Рукаводитель:  <em>{person[6]}</em></h5>           
+                <h5>Руководитель:  <em>{person[6]}</em></h5>           
                 <h5>Телефон: <em>{person[3]}</em></h5>                     
             </body>
             </html>

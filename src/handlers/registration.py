@@ -1,11 +1,11 @@
 import tool
 from config import logger
 from aiogram.types import Message, CallbackQuery
-from aiogram.filters import Command
+from aiogram.filters import Command, CommandStart
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from keyboards.register import get_reg_bt, get_lang_bt, get_checkin_kb, get_code_kb
+from keyboards.register import get_reg_bt, get_lang_bt, get_checkin_kb, get_code_kb, get_service_kb
 from filters.chat_type import ChatTypeFilter
 from .handler_tool import preset_data, send_code_verification
 import random
@@ -35,11 +35,11 @@ async def register_person(message: Message, db):
         await message.answer(f"Здравствуйте Вас привествует смарт-бот 'КазМунайГаз'"
                              f"для регистрации нажмите соответствующую кнопку\n", reply_markup=get_reg_bt())
         return True
-    await message.answer(f"Здравствуйте <u>{user[0]}</u>, \nВы уже зарегистрированный пользователь!\n"
-                         f"Вашы данные:\n"
-                         f"Почта - {user[1]}\n"
-                         f"Номер телефона - {user[2]}\n"
-                         f"Рукаводитель - {user[3]}")
+    await message.answer(f"Здравствуйте 🐏 <u>{user[0]}</u>, \nВы уже зарегистрированный пользователь!\n"
+                         f"Ваши данные:\n"
+                         f"Почта ✉ - {user[1]}\n"
+                         f"Номер телефона ☎ - {user[2]}\n"
+                         f"Руководитель 🐼 - {user[3]}", reply_markup=get_service_kb())
 
 
 @router.callback_query(F.data == "reg")
@@ -50,8 +50,8 @@ async def checkin_confirm(callback: CallbackQuery, state: FSMContext, bot) -> No
         message_id=callback.message.message_id,
         reply_markup=None)
 
-    await callback.answer("Для регистрации следуйте указать:\n\nФИО\nКорпаративную почту\nНомер телефона\nНепосредственного рукаводителя\nЯзык", show_alert=True)
-    await callback.message.answer("Введите ФИО:", reply_markup=None)
+    await callback.answer("Для регистрации укажите 📝:\n\nФИО 🐏\nКорпаративную почту ✉\nНомер телефона ☎\nНепосредственного руководителя 🐼\nЯзык интерфейса 🌏", show_alert=True)
+    await callback.message.answer("Введите ФИО 🐏:", reply_markup=None)
     await state.set_state(UserStates.fullname)
 
 
@@ -64,7 +64,9 @@ async def canceled(callback: CallbackQuery, bot) -> None:
         reply_markup=None)
 
     await callback.answer()
-    await callback.message.answer("Регистрация отменена!")
+    await callback.message.answer("🗳 При возниконовени вопросов, просим обращаться по нижеуказанным контактам:\n"
+                         "<em>Tелефон ☎:</em> <b>1414</b>\n"
+                         "<em>Почта ✉:</em> <b>manager@kmg.kz</b>")
 
 
 @router.message(UserStates.fullname)
@@ -74,7 +76,7 @@ async def process_name(message: Message, state: FSMContext) -> None:
     """
     await state.update_data(fullname=message.text)
     await state.set_state(UserStates.email)
-    await message.answer("Введите Вашу корпаративную почту:")
+    await message.answer("Введите Вашу корпаративную почту ✉:")
 
 
 @router.message(UserStates.email)
@@ -83,14 +85,14 @@ async def process_email(message: Message, state: FSMContext) -> None:
     Email validation
     """
     if not message.entities or message.entities[0].type != "email":
-        await message.answer("Не корректная почта")
+        await message.answer("Не корректный формат почты 🚫")
         return
-    elif not message.text.endswith("@kmg.kz"):
-        await message.answer("Необходимо указать корпоративную почту")
+    elif not message.text.rsplit("@")[1].rfind("kmg"):
+        await message.answer("Необходимо указать корпоративную почту ✉")
         return
     await state.update_data(email=message.text)
     await state.set_state(UserStates.phone)
-    await message.answer("Введите Ваш номер телефона (должен содержать только цифры):")
+    await message.answer("Введите Ваш номер телефона ☎ (должен содержать только цифры):")
 
 
 @router.message(UserStates.phone)
@@ -99,11 +101,11 @@ async def process_manager(message: Message, state: FSMContext) -> None:
     User's phone
     """
     if not message.text.isdigit():
-        await message.answer("Не корректный формат телефона")
+        await message.answer("Не корректный формат телефона 🚫")
         return
     await state.update_data(phone=message.text)
     await state.set_state(UserStates.manager)
-    await message.answer("Введите ФИО Вашего рукаводителя:")
+    await message.answer("Введите ФИО Вашего рукаводителя 🐼:")
 
 
 @router.message(UserStates.manager)
@@ -113,7 +115,7 @@ async def process_manager(message: Message, state: FSMContext) -> None:
     """
     await state.update_data(manager=message.text)
     await state.set_state(UserStates.user_language)
-    await message.answer("Выбирете язык интерфейса:", reply_markup=get_lang_bt())
+    await message.answer("Выбирете язык интерфейса 🌏:", reply_markup=get_lang_bt())
 
 
 @router.callback_query(F.data.startswith("lang_"), UserStates.user_language)
@@ -137,7 +139,7 @@ async def checkin_lang(callback: CallbackQuery, state: FSMContext, bot) -> None:
 
 
 @router.callback_query(F.data.startswith("check_"), UserStates.user_language)
-async def verification_user(callback: CallbackQuery, state: FSMContext, bot, db) -> None:
+async def verification_user(callback: CallbackQuery, state: FSMContext, bot) -> None:
     """
     Confirming
     """
@@ -148,10 +150,10 @@ async def verification_user(callback: CallbackQuery, state: FSMContext, bot, db)
     await callback.answer()
     if confirm == "confirm":
         await send_code_verification(data["email"], code)
-        await callback.message.answer(f"Введите код верификации отправленный на почту <i>{data['email']}</i>")
+        await callback.message.answer(f"Введите код верификации 🔑, отправленный на почту ✉ <i>{data['email']}</i>")
         await state.set_state(UserStates.code)
     else:
-        await callback.message.answer("* <i>Заполните данные заново</i> *")
+        await callback.message.answer("* <i>Заполните данные заново 📝</i> *")
         await checkin_confirm(callback, state, bot)
 
 
@@ -165,10 +167,10 @@ async def verification_code_user(message: Message, state: FSMContext, db) -> Non
         await tool.add_user(data=data, user_uid=message.from_user.id, db=db)
         await state.clear()
         logger.warning(f"User by email {data['email']} was registered")
-        await message.answer("Поздравлеям вы зарегестрировались!")
+        await message.answer("Поздравлеям Вы зарегистрировались! 🟢", reply_markup=get_service_kb())
     else:
         logger.warning(f"User by email {data['email']} enter incorrect verify code")
-        await message.answer("Код верификации неверный, убедитесь в корректности кода и введите еще раз",
+        await message.answer("Код верификации неверный 🚫, убедитесь в корректности кода и введите еще раз!",
                              reply_markup=get_code_kb())
 
 
@@ -179,5 +181,11 @@ async def canceled(callback: CallbackQuery, state: FSMContext, bot) -> None:
     """
     await callback.answer()
     await state.clear()
-    await callback.message.answer("* <i>Заполните данные заново</i> *")
+    await callback.message.answer("* <i>Заполните данные заново 📝</i> *")
     await checkin_confirm(callback, state, bot)
+
+
+@router.message(Command("cancel"))
+async def canceled_command(message: Message, state: FSMContext):
+    await state.clear()
+    await message.answer(f"Сброс")

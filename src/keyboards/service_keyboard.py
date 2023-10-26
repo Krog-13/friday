@@ -30,7 +30,7 @@ def get_photo_bt() -> InlineKeyboardMarkup:
     """
     kb = InlineKeyboardBuilder()
     # kb.button(text="добавить фото", callback_data="photo_add")
-    kb.button(text="без фото", callback_data="photo_no")
+    kb.button(text="Без фото 🚫", callback_data="photo_no")
     return kb.as_markup()
 
 

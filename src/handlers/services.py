@@ -23,18 +23,21 @@ class UserOrder(StatesGroup):
     category = State()
     subcategory = State()
     problem = State()
+    cabinet = State()
+    phone = State()
     photo = State()
     category_id = State()
 
 
 @router.message(Command("service"))
+@router.message(F.text.startswith("Новый"))
 async def cmd_dice_in_group(message: Message, db):
     if not await tool.exist_user(str(message.from_user.id), db):
-        await message.answer(f"Для использования данного <b>меню</b> (<em>Сервис</em>) "
-                             f"необходима регистрация\n",
+        await message.answer(f"Для использования данного <b>меню</b> (<em>Сервис</em>) 💬 "
+                             f"необходима регистрация 🟢\n",
                              reply_markup=get_reg_bt())
         return True
-    await message.answer(f"Здравствуйте, для выбора услуги выбирите соответствующую кнопку",
+    await message.answer(f"Здравствуйте 🗿, для выбора услуги выбирите соответствующую <u>кнопку</u> 🔘",
                          reply_markup=get_category_bt(db))
 
 
@@ -51,7 +54,7 @@ async def callbacks_num_change_fab(callback: CallbackQuery, callback_data: Categ
         await state.update_data(name=callback_data.name)
         sub_cat = await tool.cat_child(callback_data.value_id, db)
         await state.set_state(UserOrder.category)
-        await callback.message.answer(text="Выбирете подкатегорию", reply_markup=get_inet_bt(sub_cat, callback_data.name))
+        await callback.message.answer(text="Выбирете подкатегорию 👇", reply_markup=get_inet_bt(sub_cat, callback_data.name))
 
 
 @router.callback_query(UserOrder.category, F.data.startswith("fix_"))
@@ -68,18 +71,38 @@ async def category_sub(callback: CallbackQuery, state: FSMContext, bot) -> None:
     await state.set_state(UserOrder.problem)
     data = await state.get_data()
     await callback.answer()
-    await callback.message.answer(f"Вы выбрали категорию:\n* <b>{data['name']}</b>\n** <b>{category[1]}</b>\n\n"
-                                  f"Опишите проблему:")
+    await callback.message.answer(f"Вы выбрали категорию:\n🔹 <b>{data['name']}</b>\n🔹🔹 <b>{category[1]}</b>\n\n"
+                                  f"Опишите проблему 📝:")
 
 
 @router.message(UserOrder.problem)
 async def order_msg(message: Message, state: FSMContext) -> None:
     """
-    Register user
+    Select cabinet
     """
     await state.update_data(problem=message.text)
+    await state.set_state(UserOrder.cabinet)
+    await message.answer(text="Укажите <u>номер</u> <em>кабинет</em> 🚪")
+
+
+@router.message(UserOrder.cabinet)
+async def order_msg(message: Message, state: FSMContext) -> None:
+    """
+    Select cabinet
+    """
+    await state.update_data(cabinet=message.text)
+    await state.set_state(UserOrder.phone)
+    await message.answer(text="Укажите <u>номер</u> <em>телефона</em> ☎")
+
+
+@router.message(UserOrder.phone)
+async def order_msg(message: Message, state: FSMContext) -> None:
+    """
+    Register user
+    """
+    await state.update_data(phone=message.text)
     await state.set_state(UserOrder.photo)
-    await message.answer(text="Загрузите фото описываемой проблемы", reply_markup=get_photo_bt())
+    await message.answer(text="Загрузите одно <u>фото</u> описываемой проблемы 📸", reply_markup=get_photo_bt())
 
 
 @router.callback_query(UserOrder.photo, F.data.startswith("photo_"))
@@ -99,7 +122,7 @@ async def category_sub(callback: CallbackQuery, state: FSMContext, bot, db) -> N
     await state.clear()
     await send_problem(data, person)
     logger.info(f"User by email {person[2]} created order without photo")
-    await callback.message.answer(text="Ваше обращение оптравленно без фото. Спасибо Ваша заявка в обработке")
+    await callback.message.answer(text="Ваше обращение оптравленно без фото. Спасибо Ваша заявка в обработке ⚙")
 
 
 @router.message(UserOrder.photo, F.photo)
@@ -118,7 +141,7 @@ async def order_photo(message: Message, state: FSMContext, db, bot) -> None:
     if data:
         await tool.set_order(data, person[0], db)
         await send_problem(data, person, photo_bytes)
-        await message.answer(text="Ваше обращение отправленно с фото. Спасибо Ваша заявка в обработке")
+        await message.answer(text="Ваше обращение отправленно с фото. Спасибо Ваша заявка в обработке ⚙")
         logger.info(f"User by email {person[2]} created order with photo")
 
 
@@ -129,10 +152,10 @@ async def get_all_orders(message: Message, db):
     """
     my_orders = await tool.get_orders(str(message.from_user.id), db)
     if not my_orders:
-        await message.answer(text="У Вас нет активных заявок!")
+        await message.answer(text="У Вас нет активных заявок! ⭕")
         return
     for item in my_orders:
-        await message.answer(text=f"Дата создания: {item[0].strftime('%Y-%m-%d %H:%M')}\n"
-                                  f"Статус: {item[1]}\n"
-                                  f"Тема: {item[3]}\n"
-                                  f"Текст обращения: {item[2]}\n")
+        await message.answer(text=f"Дата создания 🕗: {item[0].strftime('%Y-%m-%d %H:%M')}\n"
+                                  f"Статус: ☢ {item[1]}\n"
+                                  f"Тема: ❕ {item[3]}\n"
+                                  f"Текст обращения: 💬 {item[2]}\n")

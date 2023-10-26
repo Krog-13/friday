@@ -17,13 +17,14 @@ from aiohttp.web_request import Request
 # start server https -> ngrok http 8080
 APP_BASE_URL = config.APP_BASE_URL
 
-_DEFAULT_COMMAND = [types.bot_command.BotCommand(command="start", description="Начало"),
-                    types.bot_command.BotCommand(command="register", description="Регистрация"),
-                    types.bot_command.BotCommand(command="service", description="Услуги"),
-                    types.bot_command.BotCommand(command="file", description="Файл"),
-                    types.bot_command.BotCommand(command="orders", description="Ваши заявки"),
-                    types.bot_command.BotCommand(command="help", description="Помошник"),
-                    types.bot_command.BotCommand(command="cancel", description="Отмена")]
+# set emoji ctrl+alt+;
+_DEFAULT_COMMAND = [types.bot_command.BotCommand(command="start", description="Домашняя страница 🟢"),
+                    types.bot_command.BotCommand(command="register", description="Регистрация 🔵"),
+                    types.bot_command.BotCommand(command="service", description="Услуги 🌀"),
+                    types.bot_command.BotCommand(command="file", description="Файл 📄"),
+                    types.bot_command.BotCommand(command="orders", description="Ваши заявки 📒"),
+                    types.bot_command.BotCommand(command="help", description="Помошник 💡"),
+                    types.bot_command.BotCommand(command="cancel", description="Отмена 👾")]
 
 _DEFAULT_COMMAND_TYPE = MenuButtonType.COMMANDS
 
