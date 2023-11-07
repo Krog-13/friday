@@ -27,7 +27,7 @@ _DEFAULT_COMMAND = [types.bot_command.BotCommand(command="start", description="�
                     types.bot_command.BotCommand(command="cancel", description="Отмена 👾")]
 
 _DEFAULT_COMMAND_TYPE = MenuButtonType.COMMANDS
-
+_categories = []
 
 async def on_startup(bot: Bot, base_url: str):
     await bot.set_webhook(f"{base_url}/webhook")
@@ -63,10 +63,11 @@ def main() -> None:
     SimpleRequestHandler(
         dispatcher=dp,
         bot=bot,
-        db=db
+        db=db,
+        categories=_categories
     ).register(app, path="/webhook")
 
-    setup_application(app, dp, bot=bot, db=db)
+    setup_application(app, dp, bot=bot, db=db, category=_categories)
     run_app(app, host="127.0.0.1", port=8080)
 
 

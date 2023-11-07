@@ -10,18 +10,20 @@ def get_category_bt(db):
     builder = InlineKeyboardBuilder()
     for cat in category:
         builder.button(text=cat[1], callback_data=CategoryCallbackFactory(action="change", value_id=cat[0], name=cat[1]))
-    builder.adjust(4)
+    builder.adjust(1)
     return builder.as_markup()
 
 
-def get_inet_bt(sub_cat, name) -> InlineKeyboardMarkup:
+def get_inet_bt(sub_cat) -> InlineKeyboardMarkup:
     """
     Problem button
     """
-    kb = InlineKeyboardBuilder()
+    builder = InlineKeyboardBuilder()
     for cat in sub_cat:
-        kb.button(text=cat[1], callback_data=f"fix_{cat[1]}_{cat[0]}")
-    return kb.as_markup()
+        builder.button(text=cat[1], callback_data=CategoryCallbackFactory(action="change", value_id=cat[0], name=cat[1]))
+        # kb.button(text=cat[1], callback_data=f"fix_{cat[1]}_{cat[0]}")
+    builder.adjust(1)
+    return builder.as_markup()
 
 
 def get_photo_bt() -> InlineKeyboardMarkup:
@@ -31,6 +33,15 @@ def get_photo_bt() -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
     # kb.button(text="добавить фото", callback_data="photo_add")
     kb.button(text="Без фото 🚫", callback_data="photo_no")
+    return kb.as_markup()
+
+
+def get_archive_bt() -> InlineKeyboardMarkup:
+    """
+    Photo button
+    """
+    kb = InlineKeyboardBuilder()
+    kb.button(text="Архив заявок ♦", callback_data="archive_orders")
     return kb.as_markup()
 
 

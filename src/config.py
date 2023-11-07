@@ -28,6 +28,7 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
 APP_BASE_URL = os.environ.get("APP_BASE_URL")
+API_SMAX_URL = os.environ.get("API_SMAX_URL")
+API_SMAX_URL_TOKEN = os.environ.get("API_SMAX_URL_TOKEN")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-

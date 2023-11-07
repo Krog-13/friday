@@ -36,7 +36,7 @@ async def register_person(message: Message, db):
                              f"для регистрации нажмите соответствующую кнопку\n", reply_markup=get_reg_bt())
         return True
     await message.answer(f"Здравствуйте 🐏 <u>{user[0]}</u>, \nВы уже зарегистрированный пользователь!\n"
-                         f"Ваши данные:\n"
+                         f"Личные данные:\n"
                          f"Почта ✉ - {user[1]}\n"
                          f"Номер телефона ☎ - {user[2]}\n"
                          f"Руководитель 🐼 - {user[3]}", reply_markup=get_service_kb())
@@ -87,7 +87,7 @@ async def process_email(message: Message, state: FSMContext) -> None:
     if not message.entities or message.entities[0].type != "email":
         await message.answer("Не корректный формат почты 🚫")
         return
-    elif not message.text.rsplit("@")[1].rfind("kmg"):
+    elif message.text.rsplit("@")[1].rfind("kmg") == -1:
         await message.answer("Необходимо указать корпоративную почту ✉")
         return
     await state.update_data(email=message.text)

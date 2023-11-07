@@ -50,7 +50,6 @@ class Database:
         with self.conn.cursor() as cur:
             cur.execute(sql.query_insert, (10, 'https://4545', 'simple'))
             self.conn.commit()
-            print(cur)
             cur.close()
 
     def select_row_dict(self, query):
@@ -108,13 +107,37 @@ class Database:
             curs.close()
         return True
 
-    def get_orders(self, uuid):
+    def email_update(self, values):
+        """Run SQL query to update email"""
+        with self.conn.cursor() as curs:
+            curs.execute(sql.email_update, values)
+            self.conn.commit()
+            curs.close()
+        return True
+
+    def get_orders(self, values):
         """Run SQL query to get all orders"""
         with self.conn.cursor() as curs:
-            curs.execute(sql.get_orders, (uuid,))
+            curs.execute(sql.get_orders, values)
             record = curs.fetchall()
             curs.close()
         return record
+
+    def update_orders(self, values):
+        """Run SQL query to update a order"""
+        with self.conn.cursor() as curs:
+            curs.execute(sql.order_update, values)
+            self.conn.commit()
+            curs.close()
+        return True
+
+    def set_archive_order(self, values):
+        """Run SQL query to update a order"""
+        with self.conn.cursor() as curs:
+            curs.execute(sql.order_set_archive, values)
+            self.conn.commit()
+            curs.close()
+        return True
 
     def category_parent(self):
         """Run SQL query to check exists user"""
@@ -126,7 +149,7 @@ class Database:
     def category_children(self, value):
         """Run SQL query to check exists user"""
         with self.conn.cursor() as curs:
-            curs.execute(sql.category_child, str(value))
+            curs.execute(sql.category_child, (value, ))
             record = curs.fetchall()
         return record
 

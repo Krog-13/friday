@@ -6,13 +6,20 @@ from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from keyboards.register import get_reg_bt
-from keyboards.service_keyboard import get_inet_bt, get_category_bt, get_photo_bt
+from keyboards.service_keyboard import get_inet_bt, get_category_bt, get_photo_bt, get_archive_bt
 from filters.chat_type import ChatTypeFilter
 from handlers.handler_tool import CategoryCallbackFactory, send_problem
+from smax.smax_api import get_status_smax, send_message_smax
 
 
 router = Router()
 router.message.filter(ChatTypeFilter(chat_type=["group", "supergroup"]))
+
+# dictionary classification smax platform
+_step_status = ("Класификация", "Выполнение", "Подтверждение", "Готов")
+_classification_status = {"Log": _step_status[0], "Classify": _step_status[0], "FirstLineSupport": _step_status[1],
+                        "Escalate": _step_status[1], "Accept": _step_status[2], "Review": _step_status[2],
+                        "Close": _step_status[3], "Abandon": _step_status[3]}
 
 
 class UserOrder(StatesGroup):
@@ -43,8 +50,7 @@ async def cmd_dice_in_group(message: Message, db):
 
 @router.callback_query(CategoryCallbackFactory.filter())
 async def callbacks_num_change_fab(callback: CallbackQuery, callback_data: CategoryCallbackFactory,
-                                   db, state: FSMContext, bot):
-    # Текущее значение
+                                   db, state: FSMContext, bot, categories):
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -52,12 +58,24 @@ async def callbacks_num_change_fab(callback: CallbackQuery, callback_data: Categ
     if callback_data.action == "change":
         await callback.answer()
         await state.update_data(name=callback_data.name)
+        await state.update_data(category_id=callback_data.value_id)
+        categories.append(callback_data.name)
+        await state.update_data(subcategory=categories)
+
         sub_cat = await tool.cat_child(callback_data.value_id, db)
-        await state.set_state(UserOrder.category)
-        await callback.message.answer(text="Выбирете подкатегорию 👇", reply_markup=get_inet_bt(sub_cat, callback_data.name))
+        if sub_cat:
+            await callback.message.answer(text="Выбирете подкатегорию 👇", reply_markup=get_inet_bt(sub_cat))
+        else:
+            await state.set_state(UserOrder.problem)
+            for idx in range(len(categories)):
+                res = (idx+1) * "🔹"
+                res += categories[idx]
+                categories[idx] = res
+            await callback.message.answer(f"\n".join(categories))
+            await callback.message.answer("Опишите проблему 📝:")
 
 
-@router.callback_query(UserOrder.category, F.data.startswith("fix_"))
+@router.callback_query(UserOrder.category)
 async def category_sub(callback: CallbackQuery, state: FSMContext, bot) -> None:
     """
     """
@@ -106,7 +124,7 @@ async def order_msg(message: Message, state: FSMContext) -> None:
 
 
 @router.callback_query(UserOrder.photo, F.data.startswith("photo_"))
-async def category_sub(callback: CallbackQuery, state: FSMContext, bot, db) -> None:
+async def category_sub(callback: CallbackQuery, state: FSMContext, bot, db, categories) -> None:
     """
     Without photo
     """
@@ -118,11 +136,13 @@ async def category_sub(callback: CallbackQuery, state: FSMContext, bot, db) -> N
     uuid = callback.from_user.id
     person = await tool.get_user(str(uuid), db)
     data = await state.get_data()
-    await tool.set_order(data, person[0], db)
     await state.clear()
-    await send_problem(data, person)
+    order_id = await send_message_smax(data, person)
+    await tool.set_order(data, person[0], order_id, db)
+    # await send_problem(data, person)
+    categories.clear()
     logger.info(f"User by email {person[2]} created order without photo")
-    await callback.message.answer(text="Ваше обращение оптравленно без фото. Спасибо Ваша заявка в обработке ⚙")
+    await callback.message.answer(text=f"Ваше обращение оптравленно без фото. Спасибо Ваш № заявки {order_id} в обработке ⚙")
 
 
 @router.message(UserOrder.photo, F.photo)
@@ -146,16 +166,44 @@ async def order_photo(message: Message, state: FSMContext, db, bot) -> None:
 
 
 @router.message(Command("orders"))
-async def get_all_orders(message: Message, db):
+async def get_all_orders(message: Message, db, user_uuid=None, active=False):
     """
     View all records by user
     """
-    my_orders = await tool.get_orders(str(message.from_user.id), db)
+    if user_uuid:
+        my_orders = await tool.get_orders(str(user_uuid), active, db)
+    else:
+        my_orders = await tool.get_orders(str(message.from_user.id), active, db)
     if not my_orders:
-        await message.answer(text="У Вас нет активных заявок! ⭕")
+        if not active:
+            await message.answer(text="У Вас нет активных заявок! ⭕")
+        else:
+            await message.answer(text="Архив пуст! ⭕")
         return
     for item in my_orders:
-        await message.answer(text=f"Дата создания 🕗: {item[0].strftime('%Y-%m-%d %H:%M')}\n"
-                                  f"Статус: ☢ {item[1]}\n"
-                                  f"Тема: ❕ {item[3]}\n"
-                                  f"Текст обращения: 💬 {item[2]}\n")
+        res = await get_status_smax(item[2])
+        current_status = res["entities"][0]["properties"]["PhaseId"]
+        query_time = res["meta"]["query_time"]
+        await tool.update_status_order(item, _classification_status[current_status], db, query_time)
+
+        await message.answer(text=f"Дата создания: 🕗 {item[1].strftime('%Y-%m-%d %H:%M')}\n"
+                                  f"Ваш номер заявки: 🆔 {item[2]}\n"
+                                  f"Ваш статус заявки: 🔰 {_classification_status[current_status]}\n"
+                                  f"Тема: ❕ <em>{item[5]}</em>\n"
+                                  f"Текст обращения: 💬 {item[4]}\n")
+    if not active:
+        await message.answer(text="<em>Просмотреть архив заявок 🗂</em>", reply_markup=get_archive_bt())
+
+
+@router.callback_query(F.data.startswith("archive_"))
+async def category_sub(callback: CallbackQuery, db, bot) -> None:
+    """
+    Archive orders
+    """
+    await bot.edit_message_reply_markup(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        reply_markup=None)
+
+    await callback.answer()
+    await get_all_orders(callback.message, db, user_uuid=callback.from_user.id, active=True)

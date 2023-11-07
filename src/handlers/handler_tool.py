@@ -71,6 +71,7 @@ async def send_problem(data, person, photo=None):
     """
     Account verification
     """
+    # email = "sms@kmg.kz"
     email = "a.nurkin@kmkl.kmg.kz"
     # email = "r.nazarova@kmg.kz"
     try:
@@ -80,19 +81,20 @@ async def send_problem(data, person, photo=None):
         msg = MIMEMultipart()
         msg['From'] = sender_email
         msg['To'] = email
-        msg['Subject'] = 'Верификация аккаунта сотрутника KMG'
+        msg['Subject'] = 'Обращение от телеграмм бота КазМунайГаз'
         html = f"""\
             <html>
             <body>
-              <h4>Категория</h4> - <em>{data["name"]}</em>
-              <h4>Подкатегория</h4> - <em>{data["subcategory"]}</em>
+              <h4>Категория</h4> - <em>{data["subcategory"]}</em>
                 <h5>Описание проблемы</h5> <p>{data["problem"]}</p>
+                <br>
                 <h5>Кабинет <p>{data["cabinet"]}</p></h5>
                 <h5>Номер телефона <p>{data["phone"]}</p></h5>
                 <br>  
                 <h5>Автор обращения: {person[5]}</h5>                     
                 <h5>Руководитель:  <em>{person[6]}</em></h5>           
                 <h5>Телефон: <em>{person[3]}</em></h5>                     
+                <h5>Почта: <em>{person[2]}</em></h5>                     
             </body>
             </html>
             """
