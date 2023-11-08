@@ -4,9 +4,9 @@ from aiogram import Router, F
 from filters.chat_type import ChatTypeFilter
 from aiogram.fsm.context import FSMContext
 import tool
+from tool import PersonState
 import random
 from .handler_tool import send_code_verification
-from aiogram.fsm.state import State, StatesGroup
 from .registration import checkin_confirm
 from config import BASE_DIR, logger
 from keyboards.register import get_reg_bt, get_service_kb, get_update_kb, get_update_profile_kb
@@ -15,13 +15,6 @@ router = Router()
 router.message.filter(ChatTypeFilter(chat_type=["group", "supergroup"]))
 _KMG_LOGO = FSInputFile(BASE_DIR + "/media/logo_kmg.jpg")
 
-
-class UserStates(StatesGroup):
-    """
-    Personal data
-    """
-    dataUpdate = State()
-    codes = State()
 
 
 @router.message(CommandStart())
@@ -103,11 +96,20 @@ async def checkin_lang(callback: CallbackQuery, state: FSMContext, bot) -> None:
     if part_profile == "all":
         await checkin_confirm(callback, state, bot)
     elif part_profile == "mail":
-        await state.set_state(UserStates.dataUpdate)
+        await state.set_state(PersonState.dataUpdate)
         await callback.message.answer("Введите новую корпаративную почту ✉:")
+    elif part_profile == "fullname":
+        await state.set_state(PersonState.fullname)
+        await callback.message.answer("Введите желаемый ФИО :")
+    elif part_profile == "phone":
+        await state.set_state(PersonState.phone)
+        await callback.message.answer("Введите новый номер телефона :")
+    elif part_profile == "manager":
+        await state.set_state(PersonState.manager)
+        await callback.message.answer("Введите нового руководителя :")
 
 
-@router.message(UserStates.dataUpdate)
+@router.message(PersonState.dataUpdate)
 async def process_email(message: Message, state: FSMContext, db) -> None:
     """
     Email validation
@@ -123,10 +125,10 @@ async def process_email(message: Message, state: FSMContext, db) -> None:
     await send_code_verification(message.text, code)
     await message.answer(f"Введите код верификации 🔑, отправленный на почту ✉ <i>{message.text}</i>")
     await state.update_data(dataUpdate=message.text)
-    await state.set_state(UserStates.codes)
+    await state.set_state(PersonState.codes)
 
 
-@router.message(UserStates.codes)
+@router.message(PersonState.codes)
 async def verification_code_user(message: Message, state: FSMContext, db) -> None:
     """
     Register user
@@ -140,6 +142,42 @@ async def verification_code_user(message: Message, state: FSMContext, db) -> Non
     else:
         logger.warning(f"User by email {data['dataUpdate']} enter incorrect verify code")
         await message.answer("Код верификации неверный 🚫, убедитесь в корректности кода и введите еще раз!")
+
+
+@router.message(PersonState.fullname)
+async def update_fullname(message: Message, state: FSMContext, db) -> None:
+    """
+    Update fullname
+    """
+    current_state = await state.get_state()
+    new_fullname = message.text
+    await tool.credentials_update(message.from_user.id, new_fullname, db, current_state)
+    await state.clear()
+    await message.answer("Ваш ФИО успешно изменен! ✅", reply_markup=get_service_kb())
+
+
+@router.message(PersonState.phone)
+async def update_phone(message: Message, state: FSMContext, db) -> None:
+    """
+    Update phone
+    """
+    current_state = await state.get_state()
+    new_fullname = message.text
+    await tool.credentials_update(message.from_user.id, new_fullname, db, current_state)
+    await state.clear()
+    await message.answer("Ваш Номер телефона успешно изменен! ✅", reply_markup=get_service_kb())
+
+
+@router.message(PersonState.manager)
+async def update_manager(message: Message, state: FSMContext, db) -> None:
+    """
+    Update manager
+    """
+    current_state = await state.get_state()
+    new_fullname = message.text
+    await tool.credentials_update(message.from_user.id, new_fullname, db, current_state)
+    await state.clear()
+    await message.answer("Ваш Менеджер успешно изменен! ✅", reply_markup=get_service_kb())
 
 
 @router.message(F.text.startswith("🏡"))

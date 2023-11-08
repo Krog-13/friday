@@ -38,6 +38,9 @@ category_parent = "SELECT * FROM service WHERE parent_id is null"
 category_child = "SELECT * FROM service WHERE parent_id=%s"
 
 email_update = "UPDATE users SET email=%s where personal_uid=%s"
+fullname_update = "UPDATE users SET full_name=%s where personal_uid=%s"
+phone_update = "UPDATE users SET phone_number=%s where personal_uid=%s"
+manager = "UPDATE users SET manager=%s where personal_uid=%s"
 
 order_update = "UPDATE orders SET order_status=%s, order_date_closed=%s where id=%s"
 order_set_archive = "UPDATE orders SET active=%s where id=%s"

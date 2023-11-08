@@ -1,7 +1,20 @@
 from datetime import datetime, timedelta
+from aiogram.fsm.state import State, StatesGroup
+
 
 # final status
 _END_STATUS = "Готов"
+
+
+class PersonState(StatesGroup):
+    """
+    Personal data
+    """
+    dataUpdate = State()
+    codes = State()
+    fullname = State()
+    phone = State()
+    manager = State()
 
 
 async def exist_user(user_uid, db):
@@ -64,6 +77,20 @@ async def email_update(user_id, email, db):
     """
     all_orders = db.email_update(values=(email, str(user_id)))
     return all_orders
+
+
+async def credentials_update(user_id, data_credentials, db, state):
+    """
+    Credentials Update
+    Fullname, Phone, Manager
+    """
+    if state == PersonState.fullname:
+        record = db.fullname_update(values=(data_credentials, str(user_id)))
+    elif state == PersonState.phone:
+        record = db.phone_update(values=(data_credentials, str(user_id)))
+    elif state == PersonState.manager:
+        record = db.manager_update(values=(data_credentials, str(user_id)))
+
 
 
 async def update_status_order(order, current_status, db, query_date):

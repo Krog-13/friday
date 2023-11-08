@@ -115,6 +115,30 @@ class Database:
             curs.close()
         return True
 
+    def fullname_update(self, values):
+        """Run SQL query to update fullname"""
+        with self.conn.cursor() as curs:
+            curs.execute(sql.fullname_update, values)
+            self.conn.commit()
+            curs.close()
+        return True
+
+    def phone_update(self, values):
+        """Run SQL query to update phone"""
+        with self.conn.cursor() as curs:
+            curs.execute(sql.phone_update, values)
+            self.conn.commit()
+            curs.close()
+        return True
+
+    def manager_update(self, values):
+        """Run SQL query to update manager"""
+        with self.conn.cursor() as curs:
+            curs.execute(sql.manager, values)
+            self.conn.commit()
+            curs.close()
+        return True
+
     def get_orders(self, values):
         """Run SQL query to get all orders"""
         with self.conn.cursor() as curs:
