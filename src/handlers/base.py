@@ -140,3 +140,8 @@ async def verification_code_user(message: Message, state: FSMContext, db) -> Non
     else:
         logger.warning(f"User by email {data['dataUpdate']} enter incorrect verify code")
         await message.answer("Код верификации неверный 🚫, убедитесь в корректности кода и введите еще раз!")
+
+
+@router.message(F.text.startswith("🏡"))
+async def canceled_command(message: Message, db):
+    await cmd_dice_in_group(message, db)

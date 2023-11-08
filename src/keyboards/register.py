@@ -53,6 +53,8 @@ def get_service_kb() -> ReplyKeyboardMarkup:
     kb.button(text="Новый запрос")
     kb.button(text="Обратная связь")
     kb.button(text="Профиль")
+    kb.button(text="🏡 Вернуться на главную")
+    kb.adjust(3)
     return kb.as_markup(resize_keyboard=True)
 
 

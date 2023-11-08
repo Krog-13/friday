@@ -1,5 +1,8 @@
 from datetime import datetime, timedelta
 
+# final status
+_END_STATUS = "Готов"
+
 
 async def exist_user(user_uid, db):
     """
@@ -42,7 +45,7 @@ async def set_order(data: dict, user_id, order_id, db):
     """
     values = []
     # prepare param
-    for item in [user_id, data["problem"], order_id, "Класификация", datetime.now(), data["category_id"]]:
+    for item in [user_id, data["problem"], order_id, "Классификация", datetime.now(), data["category_id"]]:
         values.append(item)
     db.add_orders(tuple(values))
 
@@ -69,7 +72,7 @@ async def update_status_order(order, current_status, db, query_date):
     """
 
     if order[3] != current_status:
-        if current_status == "Класификация":
+        if current_status == _END_STATUS:
             db.update_orders(values=(current_status, datetime.fromtimestamp(query_date/1000000), order[0]))
         else:
             db.update_orders(values=(current_status, None, order[0]))

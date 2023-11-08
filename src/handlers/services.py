@@ -16,7 +16,7 @@ router = Router()
 router.message.filter(ChatTypeFilter(chat_type=["group", "supergroup"]))
 
 # dictionary classification smax platform
-_step_status = ("Класификация", "Выполнение", "Подтверждение", "Готов")
+_step_status = ("Классификация", "Выполнение", "Подтверждение", "Готов")
 _classification_status = {"Log": _step_status[0], "Classify": _step_status[0], "FirstLineSupport": _step_status[1],
                         "Escalate": _step_status[1], "Accept": _step_status[2], "Review": _step_status[2],
                         "Close": _step_status[3], "Abandon": _step_status[3]}
@@ -122,6 +122,7 @@ async def order_msg(message: Message, state: FSMContext) -> None:
     await state.set_state(UserOrder.photo)
     await message.answer(text="Загрузите одно <u>фото</u> описываемой проблемы 📸", reply_markup=get_photo_bt())
 
+import base64
 
 @router.callback_query(UserOrder.photo, F.data.startswith("photo_"))
 async def category_sub(callback: CallbackQuery, state: FSMContext, bot, db, categories) -> None:
