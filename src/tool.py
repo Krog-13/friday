@@ -85,24 +85,23 @@ async def credentials_update(user_id, data_credentials, db, state):
     Fullname, Phone, Manager
     """
     if state == PersonState.fullname:
-        record = db.fullname_update(values=(data_credentials, str(user_id)))
+        db.fullname_update(values=(data_credentials, str(user_id)))
     elif state == PersonState.phone:
-        record = db.phone_update(values=(data_credentials, str(user_id)))
+        db.phone_update(values=(data_credentials, str(user_id)))
     elif state == PersonState.manager:
-        record = db.manager_update(values=(data_credentials, str(user_id)))
-
+        db.manager_update(values=(data_credentials, str(user_id)))
 
 
 async def update_status_order(order, current_status, db, query_date):
     """
     Update status accept from api (smax)
     """
-
     if order[3] != current_status:
         if current_status == _END_STATUS:
+            #                                        converting from microseconds to seconds unix time
             db.update_orders(values=(current_status, datetime.fromtimestamp(query_date/1000000), order[0]))
         else:
             db.update_orders(values=(current_status, None, order[0]))
     if order[6]:
-        if (datetime.now() - order[6]) > timedelta(days=1):
+        if (datetime.now() - order[6]) > timedelta(days=3):
             db.set_archive_order(values=(False, order[0]))

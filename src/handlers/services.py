@@ -122,7 +122,6 @@ async def order_msg(message: Message, state: FSMContext) -> None:
     await state.set_state(UserOrder.photo)
     await message.answer(text="Загрузите одно <u>фото</u> описываемой проблемы 📸", reply_markup=get_photo_bt())
 
-import base64
 
 @router.callback_query(UserOrder.photo, F.data.startswith("photo_"))
 async def category_sub(callback: CallbackQuery, state: FSMContext, bot, db, categories) -> None:
@@ -140,7 +139,6 @@ async def category_sub(callback: CallbackQuery, state: FSMContext, bot, db, cate
     await state.clear()
     order_id = await send_message_smax(data, person)
     await tool.set_order(data, person[0], order_id, db)
-    # await send_problem(data, person)
     categories.clear()
     logger.info(f"User by email {person[2]} created order without photo")
     await callback.message.answer(text=f"Ваше обращение оптравленно без фото. Спасибо Ваш № заявки {order_id} в обработке ⚙")
