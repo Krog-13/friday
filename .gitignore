@@ -6,9 +6,11 @@ __pycache__/
 .idea/
 venv
 
-
 bot_*.py
 test.png
 .env
 test.py
 src/demo.html
+
+# certification
+certs
