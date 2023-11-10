@@ -16,10 +16,10 @@ router = Router()
 router.message.filter(ChatTypeFilter(chat_type=["group", "supergroup"]))
 
 # dictionary classification smax platform
-_step_status = ("Классификация", "Выполнение", "Подтверждение", "Готов")
-_classification_status = {"Log": _step_status[0], "Classify": _step_status[0], "FirstLineSupport": _step_status[1],
-                        "Escalate": _step_status[1], "Accept": _step_status[2], "Review": _step_status[2],
-                        "Close": _step_status[3], "Abandon": _step_status[3]}
+_step_status = ("Классификация", "Утверждение", "Выполнение", "Подтверждение", "Готов")
+_classification_status = {"Log": _step_status[0], "Approve": _step_status[1], "Fulfill": _step_status[2],
+                        "Accept": _step_status[3], "Review": _step_status[3], "Close": _step_status[4],
+                        "Abandon": _step_status[4]}
 
 
 class UserOrder(StatesGroup):
@@ -38,7 +38,8 @@ class UserOrder(StatesGroup):
 
 @router.message(Command("service"))
 @router.message(F.text.startswith("Новый"))
-async def cmd_dice_in_group(message: Message, db):
+async def cmd_dice_in_group(message: Message, db, categories):
+    categories.clear()
     if not await tool.exist_user(str(message.from_user.id), db):
         await message.answer(f"Для использования данного <b>меню</b> (<em>Сервис</em>) 💬 "
                              f"необходима регистрация 🟢\n",

@@ -12,6 +12,7 @@ async def prepare_post_params(data, person):
         {
             "entity_type": "Request",
             "properties": {
+                # "RequestedForPerson": "163490",
                 "RequestedByPerson": "163490",
                 "Active": True,
                 "PhaseId": "Log",
@@ -22,7 +23,7 @@ async def prepare_post_params(data, person):
                 "RequestType": "ServiceRequest",
                 "CurrentAssignment": "Unassigned",
                 "CreationSource": "CreationSourceOther",
-                "RequestsOffering": "153226"
+                # "RequestsOffering": "153226"
             }
         }
     ],

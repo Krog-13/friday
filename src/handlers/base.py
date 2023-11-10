@@ -47,8 +47,9 @@ async def helper(message: Message):
 
 
 @router.message(Command("cancel"))
-async def canceled_command(message: Message, state: FSMContext):
+async def canceled_command(message: Message, state: FSMContext, categories):
     await state.clear()
+    categories.clear()
     await message.answer(f"Сброс")
 
 
