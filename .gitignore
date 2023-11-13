@@ -11,6 +11,7 @@ test.png
 .env
 test.py
 src/demo.html
+bot_polling.py
 
 # certification
 certs
