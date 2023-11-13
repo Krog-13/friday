@@ -25,12 +25,11 @@ async def preset_data(data):
     elif data["user_language"] == "eng":
         data["user_language"] = "Английский"
 
-    result = f"""<u>Ваши данные:</u>
+    result = f"""<u>Мои данные:</u>
         <b>ФИО:</b> {data['fullname']}
         <b>Почта:</b> {data['email']}
         <b>Номер телефона:</b> {data['phone']}
         <b>Руководитель:</b> {data['manager']}
-        <b>Язык интерфейса:</b> {data['user_language']}
     """
     return result
 

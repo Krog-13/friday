@@ -50,7 +50,7 @@ async def checkin_confirm(callback: CallbackQuery, state: FSMContext, bot) -> No
         message_id=callback.message.message_id,
         reply_markup=None)
 
-    await callback.answer("Для регистрации укажите 📝:\n\nФИО 🐏\nКорпаративную почту ✉\nНомер телефона ☎\nНепосредственного руководителя 🐼\nЯзык интерфейса 🌏", show_alert=True)
+    await callback.answer("Для регистрации укажите 📝:\n\nФИО 🐏\nКорпаративную почту ✉\nНомер телефона ☎\nНепосредственного руководителя 🐼", show_alert=True)
     await callback.message.answer("Введите ФИО 🐏:", reply_markup=None)
     await state.set_state(UserStates.fullname)
 
@@ -114,10 +114,15 @@ async def process_manager(message: Message, state: FSMContext) -> None:
     User's manager
     """
     await state.update_data(manager=message.text)
+    await state.update_data(user_language=None)
+    data = await state.get_data()
+    personal_data = await preset_data(data=data)
+    await message.answer(text=personal_data, reply_markup=get_checkin_kb())
     await state.set_state(UserStates.user_language)
-    await message.answer("Выбирете язык интерфейса 🌏:", reply_markup=get_lang_bt())
+    # await message.answer("Выбирете язык интерфейса 🌏:", reply_markup=get_lang_bt())
 
 
+# do not used!
 @router.callback_query(F.data.startswith("lang_"), UserStates.user_language)
 async def checkin_lang(callback: CallbackQuery, state: FSMContext, bot) -> None:
     """
